@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: ctc-algorithms
+Version: 0.1.0
+Summary: A Python package for CTC loss and gradient computation.
+Home-page: https://github.com/yourusername/ctc-algorithms
+Author: Harshil Chudasama
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Dist: numpy
+Dynamic: author
+Dynamic: classifier
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: summary
