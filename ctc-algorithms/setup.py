@@ -9,7 +9,8 @@ setup(
     ],
     author='Harshil Chudasama',
     description='A Python package for CTC loss and gradient computation.',
-    url='https://github.com/yourusername/ctc-algorithms',
+    url='https://github.com/QHarshil/ctc-and-nlp-algorithms/tree/main/ctc-algorithms',
+    license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License'
