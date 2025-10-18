@@ -1,9 +1,0 @@
-setup.py
-ctc/__init__.py
-ctc/core.py
-ctc_algorithms.egg-info/PKG-INFO
-ctc_algorithms.egg-info/SOURCES.txt
-ctc_algorithms.egg-info/dependency_links.txt
-ctc_algorithms.egg-info/requires.txt
-ctc_algorithms.egg-info/top_level.txt
-tests/test_ctc.py
