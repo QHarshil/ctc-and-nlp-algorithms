@@ -3,9 +3,9 @@ from math import log, exp
 
 def log_sum_exp(a, b):
     """
-    Numerically stable log-sum-exp for two values, handling -∞ inputs properly.
+    Numerically stable log-sum-exp for two values, handling -inf inputs properly.
     """
-    # If both are -∞, return -∞ instead of producing NaN
+    # If both are -inf, return -inf instead of producing NaN
     if a == -np.inf and b == -np.inf:
         return -np.inf
     # Otherwise do the usual stable log-sum-exp
@@ -39,7 +39,7 @@ def ctc_loss_and_grad(log_probs, labels, blank=0):
     T, C = log_probs.shape
     M = len(labels)
 
-    # Optional :If T < 2*M + 1, no valid alignment is possible => loss = ∞
+    # Optional :If T < 2*M + 1, no valid alignment is possible => loss = inf
     # if T < 2 * M + 1:
     #     return float('inf'), np.zeros_like(log_probs)
 
@@ -78,29 +78,33 @@ def ctc_loss_and_grad(log_probs, labels, blank=0):
             alpha[t, s] = log_probs[t, c] + log_sum
 
     # Backward Pass (beta)
-    # Initialize last row
-    beta[T-1, L-1] = log_probs[T-1, ext_labels[L-1]]
+    beta[T-1, L-1] = 0.0
     if L > 1:
-        beta[T-1, L-2] = log_probs[T-1, ext_labels[L-2]]
+        beta[T-1, L-2] = 0.0
 
-    # Fill the last row going left
-    for s in range(L-3, -1, -1):
-        beta[T-1, s] = log_probs[T-1, ext_labels[s]] + \
-                       log_sum_exp(beta[T-1, s+1], beta[T-1, s])
-
-    # Now move backward in time
     for t in range(T-2, -1, -1):
-        for s in range(L-1, -1, -1):
-            c = ext_labels[s]
-            log_sum = beta[t+1, s]
+        for s in range(L):
+            terms = []
+
+            stay = beta[t+1, s]
+            if stay != -np.inf:
+                terms.append(stay + log_probs[t+1, ext_labels[s]])
 
             if s + 1 < L:
-                log_sum = log_sum_exp(log_sum, beta[t+1, s+1])
+                move_one = beta[t+1, s+1]
+                if move_one != -np.inf:
+                    terms.append(move_one + log_probs[t+1, ext_labels[s+1]])
 
             if s + 2 < L and ext_labels[s] != ext_labels[s+2]:
-                log_sum = log_sum_exp(log_sum, beta[t+1, s+2])
+                move_two = beta[t+1, s+2]
+                if move_two != -np.inf:
+                    terms.append(move_two + log_probs[t+1, ext_labels[s+2]])
 
-            beta[t, s] = log_probs[t, c] + log_sum
+            if terms:
+                total = terms[0]
+                for term in terms[1:]:
+                    total = log_sum_exp(total, term)
+                beta[t, s] = total
 
     # Total Log-Likelihood
     if L == 1:
@@ -116,6 +120,8 @@ def ctc_loss_and_grad(log_probs, labels, blank=0):
 
     for t in range(T):
         for s in range(L):
+            if alpha[t, s] == -np.inf or beta[t, s] == -np.inf:
+                continue
             c = ext_labels[s]
             gamma_ts = alpha[t, s] + beta[t, s] - log_prob
             p = np.exp(gamma_ts)  # posterior
